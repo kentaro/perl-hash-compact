@@ -2,20 +2,15 @@ use inc::Module::Install;
 use Module::Install::AuthorTests;
 use Module::Install::ReadmeMarkdownFromPod;
 
-name 'Hash-Compact';
+name     'Hash-Compact';
 all_from 'lib/Hash/Compact.pm';
+license  'MIT';
+
 readme_markdown_from 'lib/Hash/Compact.pm';
 
-# requires '';
-# requires 'Exporter' => 5.63; # use Exporter 'import';
-# requires 'Plack' =>  0.9949;
-
-
+requires 'Scalar::Util';
 
 tests 't/*.t t/*/*.t t/*/*/*.t t/*/*/*/*.t';
 test_requires 'Test::More' => 0.96; # done_testing, subtest
-# test_requires 'Test::Requires';
 author_tests('xt');
-# test_requires 'YAML'; # required for use_test_base.
-# use_test_base;
 WriteAll;
