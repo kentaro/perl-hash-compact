@@ -1,9 +1,11 @@
 #!/usr/bin/env perl
+
 use strict;
 use warnings;
 use Test::More;
 
 package My::Memcached;
+
 use strict;
 use warnings;
 use parent qw(Cache::Memcached::Fast);
@@ -11,7 +13,7 @@ use parent qw(Cache::Memcached::Fast);
 use JSON;
 use Hash::Compact;
 
-my $options = {
+my $OPTIONS = {
     foo => {
         alias_for => 'f',
     },
@@ -24,12 +26,12 @@ my $options = {
 sub get {
     my ($self, $key) = @_;
     my $value = $self->SUPER::get($key);
-    Hash::Compact->new(decode_json $value, $options);
+    Hash::Compact->new(decode_json $value, $OPTIONS);
 }
 
 sub set {
     my ($self, $key, $value, $expire) = @_;
-    my $hash = Hash::Compact->new($value, $options);
+    my $hash = Hash::Compact->new($value, $OPTIONS);
     $self->SUPER::set($key, encode_json $hash->to_hash, $expire);
 }
 
