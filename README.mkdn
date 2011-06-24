@@ -88,13 +88,12 @@ to be aware of both space efficiency and easiness to use for us.
       },
   );
 
-Creates and returns a new Hash::Compact object.
+Creates and returns a new Hash::Compact object. If `\%options` not
+passed, Hash::Compact object `$hash` will be just a plain hash-based
+object.
 
 `\%options` is a hash-ref which key/value pairs are associated with
-ones of `\%hash`. If it's not passed, Hash::Compact object `$hash`
-will be just a plain hash-based object.
-
-`\%options` may contain the fields below:
+ones of `\%hash`. It may contain the fields below:
 
 - * alias_for
 
