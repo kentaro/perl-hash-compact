@@ -1,4 +1,9 @@
 Revision history for Perl extension Hash::Compact
 
-0.01    Thu Jun 23 23:36:55 2011
+0.02    2011-10-19
+
+        [TESTING ISSUE]
+        - added tests whether compact hashes will be correctly expanded
+
+0.01    2011-06-23
         - original version

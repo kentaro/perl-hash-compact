@@ -92,6 +92,27 @@ subtest 'hash with options' => sub {
     done_testing;
 };
 
+subtest 'compact hash with options' => sub {
+    my $hash = Hash::Compact->new({
+            f => 'foo',
+        }, {
+            foo => {
+                alias_for => 'f',
+            },
+            bar => {
+                alias_for => 'b',
+                default   => 'bar',
+            },
+        },
+    );
+
+    is $hash->param('foo'), 'foo';
+    is $hash->param('bar'), 'bar';
+    is_deeply $hash->to_hash, +{
+        f => 'foo',
+    };
+};
+
 subtest 'pass some refs' => sub {
     my $hash = Hash::Compact->new;
     $hash->param(array => [qw(foo bar)]);

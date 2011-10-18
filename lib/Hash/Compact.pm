@@ -5,7 +5,7 @@ use warnings;
 use Carp qw(croak);
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my $class   = shift;
@@ -47,9 +47,10 @@ sub param {
         }
     }
     else {
-        my $key     = shift;
+        my $key    = shift;
         my $option = $self->options->{$key} || {};
-        $value  = $self->{$option->{alias_for} || $key} || $option->{default};
+
+        $value = $self->{$option->{alias_for} || $key} || $option->{default};
     }
 
     $value;
@@ -57,6 +58,7 @@ sub param {
 
 sub to_hash {
     my $self = shift;
+
     +{
         map  {
             my $value = $self->{$_};
@@ -67,7 +69,8 @@ sub to_hash {
                 $_ => $value;
             }
         }
-        grep { $_ ne '__OPTIONS__' } keys %$self }
+        grep { $_ ne '__OPTIONS__' } keys %$self
+    }
 }
 
 1;
