@@ -48,16 +48,16 @@ default value support
      $memd->set($key, $value);
 
   my $cached_value = $memd->get($key);
-  is_deeply $cached_value->param('foo'), 'foo';
-  is_deeply $cached_value->param('bar'), 'bar';
+  is        $cached_value->param('foo'), 'foo';
+  is        $cached_value->param('bar'), 'bar';
   is_deeply $cached_value->to_hash, +{ f => 'foo' };
 
   $cached_value->param(bar => 'baz');
   $memd->set($key, $cached_value->to_hash);
 
   $cached_value = $memd->get($key);
-  is_deeply $cached_value->param('foo'), 'foo';
-  is_deeply $cached_value->param('bar'), 'baz';
+  is        $cached_value->param('foo'), 'foo';
+  is        $cached_value->param('bar'), 'baz';
   is_deeply $cached_value->to_hash, +{ f => 'foo', b => 'baz' };
 
   done_testing;
