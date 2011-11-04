@@ -10,7 +10,7 @@ our $VERSION = '0.03';
 sub new {
     my $class   = shift;
     my $options = @_ > 1 && (ref $_[-1] || '') eq 'HASH' ? pop : {};
-    my $self    = bless { __OPTIONS__ => $options }, $class;
+    my $self    = bless { __HASH_COMPACT_OPTIONS__ => $options }, $class;
     my $args    = shift || {};
 
     croak '$args must be a hash-ref'
@@ -23,7 +23,7 @@ sub new {
     $self;
 }
 
-sub options { $_[0]->{__OPTIONS__} }
+sub options { $_[0]->{__HASH_COMPACT_OPTIONS__} }
 
 sub param {
     my $self = shift;
@@ -69,7 +69,7 @@ sub to_hash {
                 $_ => $value;
             }
         }
-        grep { $_ ne '__OPTIONS__' } keys %$self
+        grep { $_ ne '__HASH_COMPACT_OPTIONS__' } keys %$self
     }
 }
 
@@ -129,16 +129,16 @@ default value support
      $memd->set($key, $value);
 
   my $cached_value = $memd->get($key);
-  is_deeply $cached_value->param('foo'), 'foo';
-  is_deeply $cached_value->param('bar'), 'bar';
+  is        $cached_value->param('foo'), 'foo';
+  is        $cached_value->param('bar'), 'bar';
   is_deeply $cached_value->to_hash, +{ f => 'foo' };
 
   $cached_value->param(bar => 'baz');
   $memd->set($key, $cached_value->to_hash);
 
   $cached_value = $memd->get($key);
-  is_deeply $cached_value->param('foo'), 'foo';
-  is_deeply $cached_value->param('bar'), 'baz';
+  is        $cached_value->param('foo'), 'foo';
+  is        $cached_value->param('bar'), 'baz';
   is_deeply $cached_value->to_hash, +{ f => 'foo', b => 'baz' };
 
   done_testing;

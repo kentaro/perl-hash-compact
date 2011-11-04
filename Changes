@@ -1,5 +1,11 @@
 Revision history for Perl extension Hash::Compact
 
+0.04    2011-11-04
+
+        [TRIBIAL CHANGES]
+        - fixed non-appropriate examples in synopsis
+        - changed the key name of the internal options parameter
+
 0.03    2011-11-04
 
         [TRIBIAL CHANGES]
