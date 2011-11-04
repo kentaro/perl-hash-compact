@@ -1,5 +1,10 @@
 Revision history for Perl extension Hash::Compact
 
+0.03    2011-11-04
+
+        [TRIBIAL CHANGES]
+        - suppressed warnings when value is undef
+
 0.02    2011-10-19
 
         [TESTING ISSUE]

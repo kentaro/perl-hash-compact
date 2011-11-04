@@ -38,7 +38,7 @@ sub param {
             my $option = $self->options->{$key} || {};
             $key = $option->{alias_for} || $key;
 
-            if (!ref $value && $value eq ($option->{default} || '')) {
+            if (defined $value && !ref $value && $value eq ($option->{default} || '')) {
                 delete $self->{$key};
             }
             else {
