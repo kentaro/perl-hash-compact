@@ -5,7 +5,7 @@ use warnings;
 use Carp qw(croak);
 use Scalar::Util qw(blessed);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my $class   = shift;
