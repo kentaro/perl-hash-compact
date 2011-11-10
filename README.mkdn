@@ -33,7 +33,7 @@ default value support
   sub set {
       my ($self, $key, $value, $expire) = @_;
       my $hash = Hash::Compact->new($value, $OPTIONS);
-      $self->SUPER::set($key, encode_json $hash->to_hash, $expire);
+      $self->SUPER::set($key, encode_json $hash->compact, $expire);
   }
 
   package main;
@@ -50,15 +50,15 @@ default value support
   my $cached_value = $memd->get($key);
   is        $cached_value->param('foo'), 'foo';
   is        $cached_value->param('bar'), 'bar';
-  is_deeply $cached_value->to_hash, +{ f => 'foo' };
+  is_deeply $cached_value->compact, +{ f => 'foo' };
 
   $cached_value->param(bar => 'baz');
-  $memd->set($key, $cached_value->to_hash);
+  $memd->set($key, $cached_value->compact);
 
   $cached_value = $memd->get($key);
   is        $cached_value->param('foo'), 'foo';
   is        $cached_value->param('bar'), 'baz';
-  is_deeply $cached_value->to_hash, +{ f => 'foo', b => 'baz' };
+  is_deeply $cached_value->compact, +{ f => 'foo', b => 'baz' };
 
   done_testing;
 
@@ -108,23 +108,49 @@ undefined, Hash::Compact object `$hash` returns just the value. It's
 for space efficiency; `$hash` doesn't need to have key/value pair
 when the value isn't defined or it's same as default value.
 
-## param (I<$key> I<[, $value]>)
+## param (I<$key>)
+
+## param (I<%pairs>)
 
   $hash->param('foo');          #=> 'foo'
   $hash->param('bar');          #=> 'bar' (returns the default value)
 
-  $hash->param(bar => 'baz');
+  $hash->param(
+      bar => 'baz',
+      qux => 'quux',
+  );
   $hash->param('bar');          #=> 'baz'
 
 Setter/getter method.
 
-## to_hash ()
+## compact ()
 
-  my $compact_hash_ref = $hash->to_hash;
-  #=> { f => 'foo', b => 'baz' } (returns a compacted hash)
+  my $compact_hash_ref = $hash->compact;
+  #=> { f => 'foo', b => 'baz' qux => 'quux' } (returns a compacted hash)
 
 Returns a compacted hash according to `\%options` passed into the
 constructor above;
+
+## to_hash ()
+
+This method will be deprecated and removed at later version.
+
+## keys ()
+
+  @keys = $hash->keys; #=> (foo, bar, qux)
+
+Returns the original key names. If `default` option is set for a key,
+the key will be returned even if the value associated with the key is
+not set.
+
+## original ()
+
+  my $original_hash_ref = $hash->original;
+  #=> { foo => 'foo', bar => 'baz' qux => 'quux' } (returns an original hash)
+
+Returns the original key-value pairs as HashRef, which includes
+key-value pairs if the key-values not set but `default` option is
+designated.
 
 # AUTHOR
 

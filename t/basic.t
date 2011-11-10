@@ -8,7 +8,7 @@ subtest 'empty hash' => sub {
 
     ok        $hash;
     isa_ok    $hash, 'Hash::Compact';
-    is_deeply $hash->to_hash, +{};
+    is_deeply $hash->compact, +{};
 };
 
 subtest 'normal hash' => sub {
@@ -26,13 +26,11 @@ subtest 'normal hash' => sub {
     $hash->param(baz => 'baz');
     is $hash->param('baz'), 'baz';
 
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         foo => 'foo',
         bar => 'bar',
         baz => 'baz',
     };
-
-    done_testing;
 };
 
 subtest 'hash with options' => sub {
@@ -57,13 +55,13 @@ subtest 'hash with options' => sub {
     is $hash->param('bar'), 'bar';
     is $hash->param('baz'), 'baz';
 
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f => 'foo',
     };
 
     $hash->param(bar => 'hoge');
     is $hash->param('bar'), 'hoge';
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f   => 'foo',
         bar => 'hoge',
     };
@@ -71,13 +69,13 @@ subtest 'hash with options' => sub {
     $hash->param(bar => 'bar');
     is $hash->param('bar'), 'bar';
     ok !exists $hash->{bar};
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f => 'foo',
     };
 
     $hash->param(baz => 'fuga');
     is $hash->param('baz'), 'fuga';
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f => 'foo',
         b => 'fuga',
     };
@@ -85,11 +83,9 @@ subtest 'hash with options' => sub {
     $hash->param(baz => 'baz');
     is $hash->param('baz'), 'baz';
     ok !exists $hash->{baz};
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f => 'foo',
     };
-
-    done_testing;
 };
 
 subtest 'compact hash with options' => sub {
@@ -108,7 +104,7 @@ subtest 'compact hash with options' => sub {
 
     is $hash->param('foo'), 'foo';
     is $hash->param('bar'), 'bar';
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         f => 'foo',
     };
 };
@@ -118,7 +114,7 @@ subtest 'pass some refs' => sub {
     $hash->param(array => [qw(foo bar)]);
 
     is_deeply $hash->param('array'), +[qw(foo bar)];
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         array => [qw(foo bar)]
     };
 
@@ -131,11 +127,100 @@ subtest 'pass some refs' => sub {
     });
     $hash->param(hash => $hash2);
 
-    is_deeply $hash->to_hash, +{
+    is_deeply $hash->compact, +{
         array => [qw(foo bar)],
         hash  => {
             b => 'baz',
         },
+    };
+};
+
+subtest 'keys' => sub {
+    my $hash;
+
+    $hash = Hash::Compact->new({ foo => 'foo' });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({});
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw()];
+
+    $hash = Hash::Compact->new({ foo => 'foo' }, {
+        foo => { alias_for => 'f' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({}, {
+        foo => { alias_for => 'f' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw()];
+
+    $hash = Hash::Compact->new({ foo => 'foo' }, {
+        foo => { default => 'foo' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({}, {
+        foo => { default => 'foo' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({ foo => 'foo' }, {
+        foo => { default => 'bar' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({ foo => 'foo' }, {
+        foo => { alias_for => 'f', default => 'foo' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+
+    $hash = Hash::Compact->new({}, {
+        foo => { alias_for => 'f', default   => 'foo' }
+    });
+
+    is_deeply [sort { $a cmp $b } $hash->keys],
+              [sort { $a cmp $b } qw(foo)];
+};
+
+subtest 'original' => sub {
+    my $hash = Hash::Compact->new({
+            foo => 'foo',
+            baz => 'baz',
+        },
+        {
+            foo => {
+                alias_for => 'f',
+            },
+            bar => {
+                alias_for => 'b',
+                default   => 'bar',
+            },
+            baz => {
+                default   => 'baz',
+            },
+        },
+    );
+
+    is_deeply $hash->original, +{
+        foo => 'foo',
+        bar => 'bar',
+        baz => 'baz',
     };
 };
 

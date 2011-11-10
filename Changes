@@ -1,5 +1,14 @@
 Revision history for Perl extension Hash::Compact
 
+0.05    2011-11-10
+
+        [FEATURE CHANGES]
+        - added: keys(), original()
+        - added: compact() as an alias to to_hash()
+
+        [IMPORTANT NOTICE]
+        - to_hash() is now deprecated and will be removed at later version
+
 0.04    2011-11-04
 
         [TRIBIAL CHANGES]

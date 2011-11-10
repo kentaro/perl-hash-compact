@@ -25,6 +25,27 @@ sub new {
 
 sub options { $_[0]->{__HASH_COMPACT_OPTIONS__} }
 
+sub keys {
+    my $self = shift;
+    my %alias_map;
+    my @defaults;
+
+    for my $key (CORE::keys %{$self->options}) {
+        if (my $raw = $self->options->{$key}{alias_for}) {
+            $alias_map{$raw} = $key;
+        }
+        if ($self->options->{$key}{default}) {
+            push @defaults, $key;
+        }
+    }
+
+    my %seen;
+    grep { !$seen{$_}++ } map {
+        my $key = $_;
+        my $original_key = $alias_map{$key} ? $alias_map{$key} : $key;
+    } grep { $_ ne '__HASH_COMPACT_OPTIONS__' } (keys %$self, @defaults);
+}
+
 sub param {
     my $self = shift;
     my $value;
@@ -57,23 +78,33 @@ sub param {
 }
 
 sub to_hash {
+    warn 'to_hash() method will be deprecated at later version. use compact() instead';
+    $_[0]->compact;
+}
+
+sub compact {
     my $self = shift;
 
     +{
         map  {
             my $value = $self->{$_};
+
             if (blessed $value && $value->can('to_hash')) {
-                $_ => $value->to_hash;
+                $_ => $value->compact;
             }
             else {
                 $_ => $value;
             }
-        }
-        grep { $_ ne '__HASH_COMPACT_OPTIONS__' } keys %$self
+        } grep { $_ ne '__HASH_COMPACT_OPTIONS__' } CORE::keys %$self
     }
 }
 
-1;
+sub original {
+    my $self = shift;
+    +{ map { $_ => $self->param($_) } $self->keys }
+}
+
+!!1;
 
 __END__
 
@@ -114,7 +145,7 @@ default value support
   sub set {
       my ($self, $key, $value, $expire) = @_;
       my $hash = Hash::Compact->new($value, $OPTIONS);
-      $self->SUPER::set($key, encode_json $hash->to_hash, $expire);
+      $self->SUPER::set($key, encode_json $hash->compact, $expire);
   }
 
   package main;
@@ -131,15 +162,15 @@ default value support
   my $cached_value = $memd->get($key);
   is        $cached_value->param('foo'), 'foo';
   is        $cached_value->param('bar'), 'bar';
-  is_deeply $cached_value->to_hash, +{ f => 'foo' };
+  is_deeply $cached_value->compact, +{ f => 'foo' };
 
   $cached_value->param(bar => 'baz');
-  $memd->set($key, $cached_value->to_hash);
+  $memd->set($key, $cached_value->compact);
 
   $cached_value = $memd->get($key);
   is        $cached_value->param('foo'), 'foo';
   is        $cached_value->param('bar'), 'baz';
-  is_deeply $cached_value->to_hash, +{ f => 'foo', b => 'baz' };
+  is_deeply $cached_value->compact, +{ f => 'foo', b => 'baz' };
 
   done_testing;
 
@@ -193,23 +224,49 @@ when the value isn't defined or it's same as default value.
 
 =back
 
-=head2 param (I<$key> I<[, $value]>)
+=head2 param (I<$key>)
+
+=head2 param (I<%pairs>)
 
   $hash->param('foo');          #=> 'foo'
   $hash->param('bar');          #=> 'bar' (returns the default value)
 
-  $hash->param(bar => 'baz');
+  $hash->param(
+      bar => 'baz',
+      qux => 'quux',
+  );
   $hash->param('bar');          #=> 'baz'
 
 Setter/getter method.
 
-=head2 to_hash ()
+=head2 compact ()
 
-  my $compact_hash_ref = $hash->to_hash;
-  #=> { f => 'foo', b => 'baz' } (returns a compacted hash)
+  my $compact_hash_ref = $hash->compact;
+  #=> { f => 'foo', b => 'baz' qux => 'quux' } (returns a compacted hash)
 
 Returns a compacted hash according to C<\%options> passed into the
 constructor above;
+
+=head2 to_hash ()
+
+This method will be deprecated and removed at later version.
+
+=head2 keys ()
+
+  @keys = $hash->keys; #=> (foo, bar, qux)
+
+Returns the original key names. If C<default> option is set for a key,
+the key will be returned even if the value associated with the key is
+not set.
+
+=head2 original ()
+
+  my $original_hash_ref = $hash->original;
+  #=> { foo => 'foo', bar => 'baz' qux => 'quux' } (returns an original hash)
+
+Returns the original key-value pairs as HashRef, which includes
+key-value pairs if the key-values not set but C<default> option is
+designated.
 
 =head1 AUTHOR
 
