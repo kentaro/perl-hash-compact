@@ -1,5 +1,11 @@
 Revision history for Perl extension Hash::Compact
 
+0.06    2012-10-20
+
+        [DISTRIBUTING ISSUE]
+        - distribute with new Module::Install
+        - http://weblog.bulknews.net/post/33907905561/do-not-ship-modules-with-module-install-1-04
+
 0.05    2011-11-10
 
         [FEATURE CHANGES]
